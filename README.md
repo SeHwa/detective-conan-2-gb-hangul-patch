@@ -1,1 +1,1 @@
-# detective-conan-2-gb-hangul-patch
+# 명탐정 코난 GB 2 의혹의 호화열차 한글패치
