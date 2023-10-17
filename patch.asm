@@ -73,9 +73,13 @@ get_byte_from_specific_bank:
     pop af
     ret
 
-get_data_from_specific_bank:
+get_ptr_from_specific_bank:
     ld ($2100), a
-    call $87B
+    ldi a, (hl)
+    ld h, (hl)
+    ld l, a
+    ld a, NEWBANK
+    ld ($2100), a
     ret
 
 get_tile_from_specific_bank:
@@ -121,6 +125,7 @@ Hook_new_menu:
     jp $58FE
 
     db $88,$88,$88,$88
+; 코드 패치 Hook 오프셋 리스트 (실제 쓰는 위치는 NEWBANK_HOOK_OFFSET_TABLE 주소) (끝은 0xFFFF)
     dd $EC2, $1476, $14EF, $157F, $E6F
     dd $2996, $29A3, $2A64, $2A71
     dd $3D0D, $1A2D, $1A51, $1AAD, $1AD1, $3A3A, $3BA2, $3BC5
@@ -177,7 +182,7 @@ NEWBANK_find_hook_offset:
     cp c
     jr nz, NEWBANK_find_hook_offset
     jr NEWBANK_jump_hook
-NEWBANK_find_hook_offset_error:
+NEWBANK_find_hook_offset_error: ; 테이블에 맞는 오프셋이 없음
     jr NEWBANK_find_hook_offset_error
 
 NEWBANK_jump_hook:
@@ -850,7 +855,7 @@ Hook_get_text10_1_bankD:
     ld bc, $40A2
     ld a, l
     add hl, hl
-    cp 27
+    cp 27       ; 공간 확보를 위해 테이블 앞쪽부터 이 갯수만큼의 대사를 다른 뱅크로 이동
     jr nc, Hook_get_text10_1_bankD_type1_newbank
     ld a, $15
     ldh ($B7), a
@@ -864,7 +869,7 @@ Hook_get_text10_1_bankD_type1_newbank
 Hook_get_text10_1_bankD_type0:
     ld a, l
     add hl, hl
-    cp 27
+    cp 27       ; 공간 확보를 위해 테이블 앞쪽부터 이 갯수만큼의 대사를 다른 뱅크로 이동
     jr nc, Hook_get_text10_1_bankD_type0_newbank
     ld a, $14
     ldh ($B7), a
@@ -921,7 +926,7 @@ Hook_get_text11_1:
     ld hl, $7FAC
 Hook_get_text11_1_type0:
     ld a, $0F
-    call get_data_from_specific_bank
+    call get_ptr_from_specific_bank
     ld a, $0F
     jp Hook_return_specific_bank
 
@@ -937,7 +942,7 @@ Hook_get_text11_2:
     ld hl, $7FAE
 Hook_get_text11_2_type0:
     ld a, $0F
-    call get_data_from_specific_bank
+    call get_ptr_from_specific_bank
     ld a, $0F
     jp Hook_return_specific_bank
 
@@ -953,7 +958,7 @@ Hook_get_text11_3:
     ld hl, $7FB0
 Hook_get_text11_3_type0:
     ld a, $0F
-    call get_data_from_specific_bank
+    call get_ptr_from_specific_bank
     ld a, $0F
     jp Hook_return_specific_bank
 
@@ -969,7 +974,7 @@ Hook_get_text11_4:
     ld hl, $7FB2
 Hook_get_text11_4_type0:
     ld a, $0F
-    call get_data_from_specific_bank
+    call get_ptr_from_specific_bank
     ld a, $0F
     jp Hook_return_specific_bank
 
@@ -985,7 +990,7 @@ Hook_get_text11_5:
     ld hl, $7FB4
 Hook_get_text11_5_type0:
     ld a, $0F
-    call get_data_from_specific_bank
+    call get_ptr_from_specific_bank
     ld a, $0F
     jp Hook_return_specific_bank
 
@@ -1001,7 +1006,7 @@ Hook_get_text11_6:
     ld hl, $7FB6
 Hook_get_text11_6_type0:
     ld a, $0F
-    call get_data_from_specific_bank
+    call get_ptr_from_specific_bank
     ld a, $0F
     jp Hook_return_specific_bank
 
@@ -1018,7 +1023,7 @@ Hook_get_text11_7:
 Hook_get_text11_7_type0:
     add hl, bc
     ld a, $0F
-    call get_data_from_specific_bank
+    call get_ptr_from_specific_bank
     ld a, $1A
     ldh ($B7), a
     ld a, l
